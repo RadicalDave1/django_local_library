@@ -173,3 +173,41 @@ class BookDelete(PermissionRequiredMixin, DeleteView):
             return HttpResponseRedirect(
                 reverse("book-delete", kwargs={"pk": self.object.pk})
             )
+
+from django.contrib.auth.mixins import UserPassesTestMixin
+from .models import Review
+
+class ReviewCreate(LoginRequiredMixin, CreateView):
+    model = Review
+    fields = ['rating', 'comment']
+
+    def form_valid(self, form):
+        form.instance.book = get_object_or_404(Book, pk=self.kwargs['pk'])
+        form.instance.reviewer = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('book-detail', kwargs={'pk': self.kwargs['pk']})
+
+class ReviewUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """Only the review's own author may edit it."""
+    model = Review
+    fields = ['rating', 'comment']
+
+    def test_func(self):
+        return self.request.user == self.get_object().reviewer
+
+    def get_success_url(self):
+        return reverse('book-detail', kwargs={'pk': self.object.book.pk})
+
+class ReviewDelete(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """The review's own author, or anyone with the delete_review permission
+    (librarians who've been granted it, and admins/superusers), may delete it."""
+    model = Review
+
+    def test_func(self):
+        review = self.get_object()
+        return self.request.user == review.reviewer or self.request.user.has_perm('library.delete_review')
+
+    def get_success_url(self):
+        return reverse('book-detail', kwargs={'pk': self.object.book.pk})

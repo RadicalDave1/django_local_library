@@ -26,7 +26,30 @@
       <p class="text-muted"><strong>Id:</strong> {{ copy.id }}</p>
     {% endfor %}
   </div>
-{% endblock %}
+
+  <div style="margin-left:20px;margin-top:20px">
+    <h4>Reviews</h4>
+
+    {% if user.is_authenticated %}
+      <p><a href="{% url 'review-create' book.pk %}">Write a review</a></p>
+    {% endif %}
+
+    {% for review in book.reviews.all %}
+      <hr />
+      <p>
+        <strong>{{ review.rating }}/5</strong> - {{ review.reviewer }}
+        <span class="text-muted">({{ review.created_date }})</span>
+      </p>
+      <p>{{ review.comment }}</p>
+      {% if user == review.reviewer %}
+        <a href="{% url 'review-update' review.pk %}">Edit</a>
+      {% endif %}
+      {% if user == review.reviewer or perms.library.delete_review %}
+        <a href="{% url 'review-delete' review.pk %}">Delete</a>
+      {% endif %}
+    {% empty %}
+      <p>No reviews yet.</p>
+    {% endfor %}
   </div>
 {% endblock %}
 

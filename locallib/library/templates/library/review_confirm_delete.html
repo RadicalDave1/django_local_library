@@ -1,0 +1,18 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+<h1>Delete Review</h1>
+
+<p>Are you sure you want to delete this review by {{ review.reviewer }} of "{{ review.book }}"?</p>
+
+<blockquote>
+  {{ review.rating }}/5 - {{ review.comment }}
+</blockquote>
+
+<form action="" method="POST">
+  {% csrf_token %}
+  <input type="submit" action="" value="Yes, delete.">
+</form>
+
+{% endblock %}

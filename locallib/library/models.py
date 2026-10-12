@@ -152,3 +152,25 @@ class Language(models.Model):
                 violation_error_message = "Language already exists (case-insensitive match)"
             ),
         ]
+
+class Review(models.Model):
+    """Model representing a user's review of a Book."""
+    book = models.ForeignKey('Book', on_delete=models.CASCADE, related_name='reviews')
+    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField(
+        choices=[(i, str(i)) for i in range(1, 6)],
+        help_text="Rating from 1 (worst) to 5 (best)",
+    )
+    comment = models.TextField(max_length=1000, help_text="Enter your review")
+    created_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_date']
+
+    def __str__(self):
+        """String for representing the Model object."""
+        return f'{self.reviewer} - {self.book} ({self.rating}/5)'
+
+    def get_absolute_url(self):
+        """Returns the URL to access the book this review belongs to."""
+        return reverse('book-detail', args=[str(self.book.id)])

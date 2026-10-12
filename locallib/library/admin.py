@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Author, Genre, Book, BookInstance, Language
+from .models import Author, Genre, Book, BookInstance, Language, Review
 
 #admin.site.register(Book)
 #admin.site.register(Author)
@@ -43,3 +43,8 @@ class BookInstanceAdmin(admin.ModelAdmin):
             'fields': ('status', 'due_back', 'borrower')
         }),
     )
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('book', 'reviewer', 'rating', 'created_date')
+    list_filter = ('rating', 'created_date')
